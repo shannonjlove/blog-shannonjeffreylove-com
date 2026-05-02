@@ -18,6 +18,7 @@ import { Route as TagTagRouteImport } from './routes/tag.$tag'
 import { Route as PostSlugRouteImport } from './routes/post.$slug'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as ApiPublicMirrorPostRouteImport } from './routes/api/public/mirror-post'
+import { Route as ApiPublicMirrorBootstrapRouteImport } from './routes/api/public/mirror-bootstrap'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
@@ -64,6 +65,12 @@ const ApiPublicMirrorPostRoute = ApiPublicMirrorPostRouteImport.update({
   path: '/api/public/mirror-post',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMirrorBootstrapRoute =
+  ApiPublicMirrorBootstrapRouteImport.update({
+    id: '/api/public/mirror-bootstrap',
+    path: '/api/public/mirror-bootstrap',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/category/$slug': typeof CategorySlugRoute
   '/post/$slug': typeof PostSlugRoute
   '/tag/$tag': typeof TagTagRoute
+  '/api/public/mirror-bootstrap': typeof ApiPublicMirrorBootstrapRoute
   '/api/public/mirror-post': typeof ApiPublicMirrorPostRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +93,7 @@ export interface FileRoutesByTo {
   '/category/$slug': typeof CategorySlugRoute
   '/post/$slug': typeof PostSlugRoute
   '/tag/$tag': typeof TagTagRoute
+  '/api/public/mirror-bootstrap': typeof ApiPublicMirrorBootstrapRoute
   '/api/public/mirror-post': typeof ApiPublicMirrorPostRoute
 }
 export interface FileRoutesById {
@@ -97,6 +106,7 @@ export interface FileRoutesById {
   '/category/$slug': typeof CategorySlugRoute
   '/post/$slug': typeof PostSlugRoute
   '/tag/$tag': typeof TagTagRoute
+  '/api/public/mirror-bootstrap': typeof ApiPublicMirrorBootstrapRoute
   '/api/public/mirror-post': typeof ApiPublicMirrorPostRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/category/$slug'
     | '/post/$slug'
     | '/tag/$tag'
+    | '/api/public/mirror-bootstrap'
     | '/api/public/mirror-post'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/category/$slug'
     | '/post/$slug'
     | '/tag/$tag'
+    | '/api/public/mirror-bootstrap'
     | '/api/public/mirror-post'
   id:
     | '__root__'
@@ -132,6 +144,7 @@ export interface FileRouteTypes {
     | '/category/$slug'
     | '/post/$slug'
     | '/tag/$tag'
+    | '/api/public/mirror-bootstrap'
     | '/api/public/mirror-post'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +157,7 @@ export interface RootRouteChildren {
   CategorySlugRoute: typeof CategorySlugRoute
   PostSlugRoute: typeof PostSlugRoute
   TagTagRoute: typeof TagTagRoute
+  ApiPublicMirrorBootstrapRoute: typeof ApiPublicMirrorBootstrapRoute
   ApiPublicMirrorPostRoute: typeof ApiPublicMirrorPostRoute
 }
 
@@ -212,6 +226,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMirrorPostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/mirror-bootstrap': {
+      id: '/api/public/mirror-bootstrap'
+      path: '/api/public/mirror-bootstrap'
+      fullPath: '/api/public/mirror-bootstrap'
+      preLoaderRoute: typeof ApiPublicMirrorBootstrapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -224,8 +245,18 @@ const rootRouteChildren: RootRouteChildren = {
   CategorySlugRoute: CategorySlugRoute,
   PostSlugRoute: PostSlugRoute,
   TagTagRoute: TagTagRoute,
+  ApiPublicMirrorBootstrapRoute: ApiPublicMirrorBootstrapRoute,
   ApiPublicMirrorPostRoute: ApiPublicMirrorPostRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
