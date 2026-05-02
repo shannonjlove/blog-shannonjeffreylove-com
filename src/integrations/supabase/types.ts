@@ -38,6 +38,35 @@ export type Database = {
         }
         Relationships: []
       }
+      category_mappings: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          medium_key: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          medium_key: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          medium_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_mappings_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           author_id: string

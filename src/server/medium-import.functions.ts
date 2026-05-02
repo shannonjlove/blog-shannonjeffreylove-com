@@ -147,6 +147,50 @@ export const importFromMedium = createServerFn({ method: "POST" })
           (meta["article:published_time"] as string | undefined) ??
           new Date().toISOString();
 
+        // Parse Medium keywords / tags
+        const keywords = ((meta.keywords as string | undefined) ?? "")
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean);
+        const firstTag = keywords[0]?.toLowerCase() ?? null;
+
+        // Resolve category from mapping → fallback: auto-create from first tag
+        let categoryId: string | null = null;
+        if (firstTag) {
+          const { data: mapping } = await supabaseAdmin
+            .from("category_mappings")
+            .select("category_id")
+            .eq("medium_key", firstTag)
+            .maybeSingle();
+
+          if (mapping?.category_id) {
+            categoryId = mapping.category_id;
+          } else {
+            const catName = firstTag.replace(/\b\w/g, (c) => c.toUpperCase());
+            const catSlug = slugify(firstTag);
+            const { data: existingCat } = await supabaseAdmin
+              .from("categories")
+              .select("id")
+              .eq("slug", catSlug)
+              .maybeSingle();
+            if (existingCat) {
+              categoryId = existingCat.id;
+            } else {
+              const { data: newCat } = await supabaseAdmin
+                .from("categories")
+                .insert({ name: catName, slug: catSlug })
+                .select("id")
+                .single();
+              categoryId = newCat?.id ?? null;
+            }
+            if (categoryId) {
+              await supabaseAdmin
+                .from("category_mappings")
+                .insert({ medium_key: firstTag, category_id: categoryId });
+            }
+          }
+        }
+
         const { data: inserted, error: insErr } = await supabaseAdmin
           .from("posts")
           .insert({
@@ -158,17 +202,13 @@ export const importFromMedium = createServerFn({ method: "POST" })
             status: "published",
             published_at: publishedAt,
             author_id: userId,
+            category_id: categoryId,
           })
           .select("id")
           .single();
         if (insErr) throw insErr;
 
-        // Tags: 'medium-import' + Medium keywords
-        const keywords =
-          ((meta.keywords as string | undefined) ?? "")
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean) ?? [];
+        // Tags: 'medium-import' + all Medium keywords
         const tagSet = new Set<string>(["medium-import", ...keywords.map((k) => k.toLowerCase())]);
         const tagRows = [...tagSet].map((tag) => ({ post_id: inserted.id, tag }));
         if (tagRows.length) await supabaseAdmin.from("post_tags").insert(tagRows);
