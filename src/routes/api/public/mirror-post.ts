@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { getRequestHost } from "@tanstack/react-start/server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const REPO_OWNER = "shannonjlove";
@@ -106,6 +107,18 @@ async function deleteFile(path: string, message: string) {
 export const Route = createFileRoute("/api/public/mirror-post")({
   server: {
     handlers: {
+      GET: async () => {
+        const secret = process.env.MIRROR_SHARED_SECRET;
+        if (!secret) return new Response("MIRROR_SHARED_SECRET not configured", { status: 500 });
+        const host = getRequestHost();
+        const endpoint = `https://${host}/api/public/mirror-post`;
+        const { error } = await supabaseAdmin.rpc("set_mirror_settings" as never, {
+          _endpoint: endpoint,
+          _secret: secret,
+        } as never);
+        if (error) return new Response(error.message, { status: 500 });
+        return Response.json({ ok: true, endpoint, repo: `${REPO_OWNER}/${REPO_NAME}`, branch: REPO_BRANCH });
+      },
       POST: async ({ request }) => {
         const sharedSecret = process.env.MIRROR_SHARED_SECRET;
         if (!sharedSecret) {

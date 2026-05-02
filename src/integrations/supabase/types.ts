@@ -206,6 +206,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      set_mirror_settings: {
+        Args: { _endpoint: string; _secret: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
