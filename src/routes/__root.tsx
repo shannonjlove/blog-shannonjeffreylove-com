@@ -25,8 +25,16 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Inkwell — Personal Writing & Portfolio" },
-      { name: "description", content: "A personal blog and portfolio of essays, notes, and design writing." },
+      { title: "World Of Words (SJL Written Works)" },
+      { name: "description", content: "Creativity as inspired...by LOVE!" },
+      { property: "og:title", content: "World Of Words (SJL Written Works)" },
+      { name: "twitter:title", content: "World Of Words (SJL Written Works)" },
+      { property: "og:description", content: "Creativity as inspired...by LOVE!" },
+      { name: "twitter:description", content: "Creativity as inspired...by LOVE!" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/08413d73-9326-45d7-aa86-3a22c2974977/id-preview-3621498d--3e908eda-8202-4c2a-be15-eee663e509ea.lovable.app-1777752371458.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/08413d73-9326-45d7-aa86-3a22c2974977/id-preview-3621498d--3e908eda-8202-4c2a-be15-eee663e509ea.lovable.app-1777752371458.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:type", content: "website" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
