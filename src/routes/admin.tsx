@@ -33,6 +33,14 @@ function AdminPage() {
   const [draft, setDraft] = useState<DraftPost>(empty);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [mappings, setMappings] = useState<{ id: string; medium_key: string; category_id: string }[]>([]);
+  const [newMapKey, setNewMapKey] = useState("");
+  const [newMapCat, setNewMapCat] = useState("");
+
+  const refreshMappings = async () => {
+    const { data } = await supabase.from("category_mappings").select("*").order("medium_key");
+    setMappings((data ?? []) as any);
+  };
 
   useEffect(() => {
     (async () => {
@@ -44,14 +52,26 @@ function AdminPage() {
       setIsAdmin(admin);
       setAuthChecked(true);
       if (admin) {
-        const [{ data: ps }, cs] = await Promise.all([
+        const [{ data: ps }, cs, { data: ms }] = await Promise.all([
           supabase.from("posts").select("*").order("created_at", { ascending: false }),
           fetchCategories(),
+          supabase.from("category_mappings").select("*").order("medium_key"),
         ]);
-        setPosts(ps ?? []); setCats(cs);
+        setPosts(ps ?? []); setCats(cs); setMappings((ms ?? []) as any);
       }
     })();
   }, [navigate]);
+
+  const addMapping = async () => {
+    const key = newMapKey.trim().toLowerCase();
+    if (!key || !newMapCat) return;
+    const { error } = await supabase.from("category_mappings").upsert({ medium_key: key, category_id: newMapCat }, { onConflict: "medium_key" });
+    if (!error) { setNewMapKey(""); setNewMapCat(""); refreshMappings(); }
+  };
+  const deleteMapping = async (id: string) => {
+    await supabase.from("category_mappings").delete().eq("id", id);
+    refreshMappings();
+  };
 
   if (!authChecked) return <div className="max-w-3xl mx-auto px-6 py-16 text-muted-foreground">Loading…</div>;
 
