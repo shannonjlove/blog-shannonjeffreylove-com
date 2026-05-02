@@ -18,13 +18,10 @@ export const Route = createFileRoute("/api/public/mirror-bootstrap")({
         const host = getRequestHost();
         const endpoint = `https://${host}/api/public/mirror-post`;
 
-        const { error } = await supabaseAdmin
-          .schema("private" as never)
-          .from("app_settings")
-          .upsert([
-            { key: "mirror_endpoint", value: endpoint },
-            { key: "mirror_secret", value: secret },
-          ]);
+        const { error } = await supabaseAdmin.rpc("set_mirror_settings" as never, {
+          _endpoint: endpoint,
+          _secret: secret,
+        } as never);
         if (error) return new Response(error.message, { status: 500 });
 
         return Response.json({ ok: true, endpoint });
