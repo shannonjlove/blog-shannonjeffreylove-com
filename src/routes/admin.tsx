@@ -197,6 +197,37 @@ function AdminPage() {
           </div>
         </div>
       </div>
+
+      <div className="mt-16 border-t border-border pt-10">
+        <h2 className="font-display text-2xl font-bold mb-2">Medium tag → category mappings</h2>
+        <p className="text-sm text-muted-foreground mb-6">When importing, the first Medium tag of each post is matched here. Unmapped tags auto-create a category and add a row below.</p>
+
+        <div className="flex flex-wrap gap-2 mb-6">
+          <input value={newMapKey} onChange={(e) => setNewMapKey(e.target.value)} placeholder="medium tag (e.g. leadership)" className="flex-1 min-w-[180px] bg-card border border-border rounded-md px-3 py-2 text-sm" />
+          <select value={newMapCat} onChange={(e) => setNewMapCat(e.target.value)} className="bg-card border border-border rounded-md px-3 py-2 text-sm">
+            <option value="">— Category —</option>
+            {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          <button onClick={addMapping} disabled={!newMapKey.trim() || !newMapCat} className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium disabled:opacity-50">Add / update</button>
+        </div>
+
+        <div className="space-y-2">
+          {mappings.length === 0 && <p className="text-sm text-muted-foreground">No mappings yet.</p>}
+          {mappings.map((m) => {
+            const cat = cats.find((c) => c.id === m.category_id);
+            return (
+              <div key={m.id} className="flex items-center justify-between gap-3 p-3 bg-card border border-border rounded-md">
+                <div className="text-sm">
+                  <span className="font-mono">{m.medium_key}</span>
+                  <span className="text-muted-foreground"> → </span>
+                  <span className="font-medium">{cat?.name ?? "(deleted category)"}</span>
+                </div>
+                <button onClick={() => deleteMapping(m.id)} className="text-xs px-2 py-1 text-destructive hover:bg-secondary rounded">Remove</button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
