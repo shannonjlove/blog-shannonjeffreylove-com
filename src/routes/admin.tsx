@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchCategories, type Category } from "@/lib/posts";
+import { importFromMedium } from "@/server/medium-import.functions";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -106,12 +108,34 @@ function AdminPage() {
     setPosts(posts.filter((p) => p.id !== id));
   };
 
+  const importMedium = useServerFn(importFromMedium);
+  const [importing, setImporting] = useState(false);
+  const [importMsg, setImportMsg] = useState<string | null>(null);
+  const runImport = async () => {
+    if (!confirm("Import all articles from medium.com/@shannonjeffreylove? Existing slugs will be skipped.")) return;
+    setImporting(true); setImportMsg("Scraping Medium…");
+    try {
+      const res = await importMedium({ data: {} });
+      setImportMsg(`Imported ${res.imported} · skipped ${res.skipped} · discovered ${res.discovered}${res.errors.length ? ` · ${res.errors.length} errors` : ""}`);
+      const { data: ps } = await supabase.from("posts").select("*").order("created_at", { ascending: false });
+      setPosts(ps ?? []);
+    } catch (e) {
+      setImportMsg(e instanceof Error ? e.message : String(e));
+    } finally {
+      setImporting(false);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex items-center justify-between mb-10 gap-4 flex-wrap">
         <h1 className="font-display text-4xl font-bold">Admin</h1>
-        <button onClick={() => supabase.auth.signOut().then(() => navigate({ to: "/" }))} className="text-sm text-muted-foreground hover:text-foreground">Sign out</button>
+        <div className="flex items-center gap-3">
+          <button onClick={runImport} disabled={importing} className="text-sm px-3 py-1.5 border border-border rounded-md hover:bg-secondary disabled:opacity-50">{importing ? "Importing…" : "Import from Medium"}</button>
+          <button onClick={() => supabase.auth.signOut().then(() => navigate({ to: "/" }))} className="text-sm text-muted-foreground hover:text-foreground">Sign out</button>
+        </div>
       </div>
+      {importMsg && <p className="mb-6 text-sm text-accent">{importMsg}</p>}
       <div className="grid lg:grid-cols-2 gap-12">
         <form onSubmit={save} className="space-y-3">
           <h2 className="font-display text-2xl font-bold mb-2">{draft.id ? "Edit post" : "New post"}</h2>
