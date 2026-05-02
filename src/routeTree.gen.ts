@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as TagTagRouteImport } from './routes/tag.$tag'
 import { Route as PostSlugRouteImport } from './routes/post.$slug'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
+import { Route as ApiPublicMirrorPostRouteImport } from './routes/api/public/mirror-post'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
@@ -58,6 +59,11 @@ const CategorySlugRoute = CategorySlugRouteImport.update({
   path: '/category/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMirrorPostRoute = ApiPublicMirrorPostRouteImport.update({
+  id: '/api/public/mirror-post',
+  path: '/api/public/mirror-post',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/category/$slug': typeof CategorySlugRoute
   '/post/$slug': typeof PostSlugRoute
   '/tag/$tag': typeof TagTagRoute
+  '/api/public/mirror-post': typeof ApiPublicMirrorPostRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/category/$slug': typeof CategorySlugRoute
   '/post/$slug': typeof PostSlugRoute
   '/tag/$tag': typeof TagTagRoute
+  '/api/public/mirror-post': typeof ApiPublicMirrorPostRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/category/$slug': typeof CategorySlugRoute
   '/post/$slug': typeof PostSlugRoute
   '/tag/$tag': typeof TagTagRoute
+  '/api/public/mirror-post': typeof ApiPublicMirrorPostRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/category/$slug'
     | '/post/$slug'
     | '/tag/$tag'
+    | '/api/public/mirror-post'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/category/$slug'
     | '/post/$slug'
     | '/tag/$tag'
+    | '/api/public/mirror-post'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/category/$slug'
     | '/post/$slug'
     | '/tag/$tag'
+    | '/api/public/mirror-post'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   CategorySlugRoute: typeof CategorySlugRoute
   PostSlugRoute: typeof PostSlugRoute
   TagTagRoute: typeof TagTagRoute
+  ApiPublicMirrorPostRoute: typeof ApiPublicMirrorPostRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategorySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/mirror-post': {
+      id: '/api/public/mirror-post'
+      path: '/api/public/mirror-post'
+      fullPath: '/api/public/mirror-post'
+      preLoaderRoute: typeof ApiPublicMirrorPostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   CategorySlugRoute: CategorySlugRoute,
   PostSlugRoute: PostSlugRoute,
   TagTagRoute: TagTagRoute,
+  ApiPublicMirrorPostRoute: ApiPublicMirrorPostRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
