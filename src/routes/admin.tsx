@@ -36,6 +36,9 @@ function AdminPage() {
   const [mappings, setMappings] = useState<{ id: string; medium_key: string; category_id: string }[]>([]);
   const [newMapKey, setNewMapKey] = useState("");
   const [newMapCat, setNewMapCat] = useState("");
+  const importMedium = useServerFn(importFromMedium);
+  const [importing, setImporting] = useState(false);
+  const [importMsg, setImportMsg] = useState<string | null>(null);
 
   const refreshMappings = async () => {
     const { data } = await supabase.from("category_mappings").select("*").order("medium_key");
@@ -128,9 +131,6 @@ function AdminPage() {
     setPosts(posts.filter((p) => p.id !== id));
   };
 
-  const importMedium = useServerFn(importFromMedium);
-  const [importing, setImporting] = useState(false);
-  const [importMsg, setImportMsg] = useState<string | null>(null);
   const runImport = async () => {
     if (!confirm("Import all articles from medium.com/@shannonjeffreylove? Existing slugs will be skipped.")) return;
     setImporting(true); setImportMsg("Scraping Medium…");
