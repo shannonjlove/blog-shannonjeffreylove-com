@@ -52,22 +52,22 @@ function AdminPage() {
     (async () => {
       try {
         setLoadError(null);
-        const { data, error: userError } = await supabase.auth.getUser();
+        const { data, error: sessionError } = await supabase.auth.getSession();
 
-        if (userError) throw userError;
-        if (!data.user) {
+        if (sessionError) throw sessionError;
+        if (!data.session) {
           if (!cancelled) setAuthChecked(true);
           navigate({ to: "/auth" });
           return;
         }
 
         if (cancelled) return;
-        setUserId(data.user.id);
+        setUserId(data.session.user.id);
 
         const { data: roles, error: rolesError } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", data.user.id);
+          .eq("user_id", data.session.user.id);
         if (rolesError) throw rolesError;
 
         const admin = (roles ?? []).some((r: any) => r.role === "admin");
