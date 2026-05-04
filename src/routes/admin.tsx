@@ -56,8 +56,21 @@ function AdminPage() {
 
         if (sessionError) throw sessionError;
         if (!data.session) {
-          if (!cancelled) setAuthChecked(true);
-          navigate({ to: "/auth" });
+          let settled = false;
+          const { data: authSub } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (!session || cancelled || settled) return;
+            settled = true;
+            authSub.subscription.unsubscribe();
+            setAuthChecked(false);
+          });
+
+          window.setTimeout(() => {
+            if (cancelled || settled) return;
+            settled = true;
+            authSub.subscription.unsubscribe();
+            setAuthChecked(true);
+            navigate({ to: "/auth" });
+          }, 1200);
           return;
         }
 
