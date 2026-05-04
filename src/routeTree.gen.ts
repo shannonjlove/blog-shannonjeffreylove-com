@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as ResumeRouteImport } from './routes/resume'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
@@ -22,6 +23,11 @@ import { Route as ApiPublicMirrorPostRouteImport } from './routes/api/public/mir
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResumeRoute = ResumeRouteImport.update({
+  id: '/resume',
+  path: '/resume',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/resume': typeof ResumeRoute
   '/search': typeof SearchRoute
   '/category/$slug': typeof CategorySlugRoute
   '/post/$slug': typeof PostSlugRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/resume': typeof ResumeRoute
   '/search': typeof SearchRoute
   '/category/$slug': typeof CategorySlugRoute
   '/post/$slug': typeof PostSlugRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/resume': typeof ResumeRoute
   '/search': typeof SearchRoute
   '/category/$slug': typeof CategorySlugRoute
   '/post/$slug': typeof PostSlugRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/auth'
+    | '/resume'
     | '/search'
     | '/category/$slug'
     | '/post/$slug'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/auth'
+    | '/resume'
     | '/search'
     | '/category/$slug'
     | '/post/$slug'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/auth'
+    | '/resume'
     | '/search'
     | '/category/$slug'
     | '/post/$slug'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
+  ResumeRoute: typeof ResumeRoute
   SearchRoute: typeof SearchRoute
   CategorySlugRoute: typeof CategorySlugRoute
   PostSlugRoute: typeof PostSlugRoute
@@ -154,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resume': {
+      id: '/resume'
+      path: '/resume'
+      fullPath: '/resume'
+      preLoaderRoute: typeof ResumeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
+  ResumeRoute: ResumeRoute,
   SearchRoute: SearchRoute,
   CategorySlugRoute: CategorySlugRoute,
   PostSlugRoute: PostSlugRoute,
