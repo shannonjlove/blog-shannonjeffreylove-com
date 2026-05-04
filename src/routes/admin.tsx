@@ -27,6 +27,7 @@ function AdminPage() {
   const navigate = useNavigate();
   const [authChecked, setAuthChecked] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [posts, setPosts] = useState<any[]>([]);
   const [cats, setCats] = useState<Category[]>([]);
@@ -46,23 +47,60 @@ function AdminPage() {
   };
 
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) { navigate({ to: "/auth" }); return; }
-      setUserId(data.session.user.id);
-      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", data.session.user.id);
-      const admin = (roles ?? []).some((r: any) => r.role === "admin");
-      setIsAdmin(admin);
-      setAuthChecked(true);
-      if (admin) {
-        const [{ data: ps }, cs, { data: ms }] = await Promise.all([
-          supabase.from("posts").select("*").order("created_at", { ascending: false }),
-          fetchCategories(),
-          supabase.from("category_mappings").select("*").order("medium_key"),
-        ]);
-        setPosts(ps ?? []); setCats(cs); setMappings((ms ?? []) as any);
+      try {
+        setLoadError(null);
+        const { data, error: userError } = await supabase.auth.getUser();
+
+        if (userError) throw userError;
+        if (!data.user) {
+          if (!cancelled) setAuthChecked(true);
+          navigate({ to: "/auth" });
+          return;
+        }
+
+        if (cancelled) return;
+        setUserId(data.user.id);
+
+        const { data: roles, error: rolesError } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", data.user.id);
+        if (rolesError) throw rolesError;
+
+        const admin = (roles ?? []).some((r: any) => r.role === "admin");
+        if (cancelled) return;
+        setIsAdmin(admin);
+
+        if (admin) {
+          const [postsResult, categoriesResult, mappingsResult] = await Promise.all([
+            supabase.from("posts").select("*").order("created_at", { ascending: false }),
+            fetchCategories(),
+            supabase.from("category_mappings").select("*").order("medium_key"),
+          ]);
+
+          if (postsResult.error) throw postsResult.error;
+          if (mappingsResult.error) throw mappingsResult.error;
+          if (cancelled) return;
+          setPosts(postsResult.data ?? []);
+          setCats(categoriesResult);
+          setMappings((mappingsResult.data ?? []) as any);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Admin page failed to load", error);
+          setLoadError(error instanceof Error ? error.message : "Admin page failed to load.");
+        }
+      } finally {
+        if (!cancelled) setAuthChecked(true);
       }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
   const addMapping = async () => {
@@ -77,6 +115,19 @@ function AdminPage() {
   };
 
   if (!authChecked) return <div className="max-w-3xl mx-auto px-6 py-16 text-muted-foreground">Loading…</div>;
+
+  if (loadError) {
+    return (
+      <div className="max-w-2xl mx-auto px-6 py-16">
+        <h1 className="font-display text-4xl font-bold mb-4">Admin couldn&apos;t load</h1>
+        <p className="text-muted-foreground mb-6">{loadError}</p>
+        <div className="flex flex-wrap gap-3">
+          <button onClick={() => window.location.reload()} className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium">Try again</button>
+          <Link to="/" className="px-4 py-2 border border-border rounded-md text-sm">Back home</Link>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return (
