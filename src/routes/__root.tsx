@@ -1,7 +1,8 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ResumeSite } from "@/components/ResumeSite";
 
 function NotFoundComponent() {
   return (
@@ -58,6 +59,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const host = typeof window !== "undefined" ? window.location.hostname : "";
+  const isResumeHost = host.startsWith("resume.");
+  const isResumeRoute = pathname === "/resume";
+
+  if (isResumeHost || isResumeRoute) {
+    return <ResumeSite />;
+  }
+
   return (
     <>
       <SiteHeader />
