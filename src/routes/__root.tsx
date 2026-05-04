@@ -59,6 +59,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const host = typeof window !== "undefined" ? window.location.hostname : "";
+  const isResumeHost = host.startsWith("resume.");
+  const isResumeRoute = pathname === "/resume";
+
+  if (isResumeHost || isResumeRoute) {
+    return <ResumeSite />;
+  }
+
   return (
     <>
       <SiteHeader />
