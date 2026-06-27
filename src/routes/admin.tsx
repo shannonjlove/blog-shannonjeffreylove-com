@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchCategories, type Category } from "@/lib/posts";
-import { importFromMedium } from "@/server/medium-import.functions";
+import { importFromMedium } from "@/lib/medium-import.functions";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
