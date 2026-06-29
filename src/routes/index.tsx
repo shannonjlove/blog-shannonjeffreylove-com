@@ -116,7 +116,7 @@ function HomePage() {
                   value={sort}
                   onChange={(e) => {
                     const v = e.target.value as "newest" | "oldest" | "popular";
-                    navigate({ search: (prev) => ({ ...prev, sort: v }) });
+                    navigate({ search: (prev: { tag?: string; sort: string }) => ({ ...prev, sort: v }) });
                   }}
                   className="bg-secondary border border-border rounded-full px-4 py-2 text-xs uppercase tracking-[0.18em] font-mono focus:outline-none focus:ring-1 focus:ring-ring"
                 >
