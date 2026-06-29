@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { useEffect, useState } from "react";
@@ -26,6 +26,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { tag, sort } = Route.useSearch();
+  const navigate = useNavigate({ from: "/" });
   const [posts, setPosts] = useState<Post[] | null>(null);
 
   useEffect(() => {
@@ -115,12 +116,7 @@ function HomePage() {
                   value={sort}
                   onChange={(e) => {
                     const v = e.target.value as "newest" | "oldest" | "popular";
-                    const url = new URL(window.location.href);
-                    url.searchParams.set("sort", v);
-                    window.history.replaceState({}, "", url.toString());
-                    // trigger refetch via state
-                    setPosts(null);
-                    fetchPosts({ sort: v, tag }).then(setPosts).catch(() => setPosts([]));
+                    navigate({ search: (prev) => ({ ...prev, sort: v }) });
                   }}
                   className="bg-secondary border border-border rounded-full px-4 py-2 text-xs uppercase tracking-[0.18em] font-mono focus:outline-none focus:ring-1 focus:ring-ring"
                 >
