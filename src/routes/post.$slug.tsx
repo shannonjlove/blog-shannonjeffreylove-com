@@ -36,29 +36,38 @@ function PostPage() {
   const url = typeof window !== "undefined" ? window.location.href : "";
 
   return (
-    <article className="max-w-3xl mx-auto px-6 py-12 md:py-16">
-      {post.category && <div className="mb-5"><CategoryTag {...post.category} /></div>}
-      <h1 className="font-display text-4xl md:text-6xl font-bold leading-[1.05] mb-5">{post.title}</h1>
-      {post.excerpt && <p className="text-xl text-muted-foreground leading-relaxed mb-6">{post.excerpt}</p>}
-      <div className="flex items-center justify-between gap-4 pb-6 mb-8 border-b border-border text-sm text-muted-foreground">
-        <p>{post.published_at && new Date(post.published_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {post.view_count} views</p>
+    <article className="max-w-3xl mx-auto px-6 py-16 md:py-24">
+      <div className="flex items-center gap-4 mb-8">
+        {post.category && <CategoryTag {...post.category} />}
+        <span className="eyebrow !text-muted-foreground">
+          {post.published_at && new Date(post.published_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+        </span>
+      </div>
+      <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold leading-[0.98] mb-6">{post.title}</h1>
+      {post.excerpt && (
+        <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed mb-10 display-italic">
+          {post.excerpt}
+        </p>
+      )}
+      <div className="flex items-center justify-between gap-4 pb-8 mb-10 border-t border-b border-border py-4 text-xs font-mono uppercase tracking-[0.18em] text-muted-foreground">
+        <p>{post.view_count} reads</p>
         <ShareButtons title={post.title} url={url} />
       </div>
       {post.cover_image && (
-        <img src={post.cover_image} alt="" className="w-full aspect-video object-cover rounded-xl mb-10" />
+        <img src={post.cover_image} alt="" className="w-full aspect-video object-cover rounded-2xl mb-12 border border-border" />
       )}
       <div className="prose-article" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }} />
       {post.tags && post.tags.length > 0 && (
-        <div className="mt-10 pt-6 border-t border-border flex gap-2 flex-wrap">
-          <span className="text-sm text-muted-foreground mr-2">Tags:</span>
+        <div className="mt-14 pt-8 border-t border-border flex gap-2 flex-wrap items-center">
+          <span className="eyebrow !text-muted-foreground mr-2">Filed under</span>
           {post.tags.map((t) => (
-            <Link key={t} to="/tag/$tag" params={{ tag: t }} className="text-xs px-3 py-1 rounded-full bg-secondary text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+            <Link key={t} to="/tag/$tag" params={{ tag: t }} className="text-xs font-mono px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:border-accent hover:text-accent transition-colors">
               #{t}
             </Link>
           ))}
         </div>
       )}
-      <div className="mt-16">
+      <div className="mt-20">
         <Comments postId={post.id} />
       </div>
     </article>
