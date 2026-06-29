@@ -1,9 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { useEffect, useState } from "react";
 import { fetchPosts, type Post } from "@/lib/posts";
 import { PostCard } from "@/components/PostCard";
+import { X } from "lucide-react";
+
+const searchSchema = z.object({
+  tag: fallback(z.string().optional(), undefined),
+  sort: fallback(z.enum(["newest", "oldest", "popular"]), "newest").default("newest"),
+});
 
 export const Route = createFileRoute("/")({
+  validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [
       { title: "Inkwell — Stories that shape culture" },
@@ -16,78 +25,111 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const { tag, sort } = Route.useSearch();
+  const navigate = useNavigate({ from: "/" });
   const [posts, setPosts] = useState<Post[] | null>(null);
-  const [sort, setSort] = useState<"newest" | "oldest" | "popular">("newest");
 
   useEffect(() => {
-    fetchPosts({ sort }).then(setPosts).catch(() => setPosts([]));
-  }, [sort]);
+    setPosts(null);
+    fetchPosts({ sort, tag }).then(setPosts).catch(() => setPosts([]));
+  }, [sort, tag]);
+
+  const filtered = !!tag;
 
   return (
     <div>
       {/* HERO */}
-      <section className="border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 pt-16 pb-20 md:pt-24 md:pb-28">
-          <p className="eyebrow mb-8">Brooklyn, NY · Volume 01 · Story-First</p>
-          <h1 className="font-display font-bold leading-[0.95] text-5xl md:text-7xl lg:text-[6.5rem] max-w-[14ch]">
-            Stories that
-            <br />
-            <span className="display-italic text-gradient-ember">shape culture.</span>
-          </h1>
-          <p className="mt-8 max-w-2xl text-lg md:text-xl text-muted-foreground leading-relaxed">
-            <span className="text-foreground font-semibold">Inkwell</span> is the writing
-            desk of Shannon J. Love — essays, field notes, and cultural reporting
-            from 25 years at the intersection of television, film, and digital media.
-          </p>
-        </div>
-      </section>
+      {!filtered && (
+        <section className="border-b border-border">
+          <div className="max-w-7xl mx-auto px-6 pt-16 pb-20 md:pt-24 md:pb-28">
+            <p className="eyebrow mb-8">Brooklyn, NY · Volume 01 · Story-First</p>
+            <h1 className="font-display font-bold leading-[0.95] text-5xl md:text-7xl lg:text-[6.5rem] max-w-[14ch]">
+              Stories that
+              <br />
+              <span className="display-italic text-gradient-ember">shape culture.</span>
+            </h1>
+            <p className="mt-8 max-w-2xl text-lg md:text-xl text-muted-foreground leading-relaxed">
+              <span className="text-foreground font-semibold">Inkwell</span> is the writing
+              desk of Shannon J. Love — essays, field notes, and cultural reporting
+              from 25 years at the intersection of television, film, and digital media.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* ACTIVE TAG FILTER */}
+      {filtered && (
+        <section className="border-b border-border bg-card/40">
+          <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
+            <p className="eyebrow mb-4">Filtered by tag</p>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <h1 className="font-display text-4xl md:text-6xl font-bold leading-[1.05]">
+                #<span className="display-italic text-gradient-ember">{tag}</span>
+              </h1>
+              <Link
+                to="/"
+                search={{ sort }}
+                className="pill"
+              >
+                <X className="w-3.5 h-3.5" /> Clear filter
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {!posts ? (
-        <div className="max-w-7xl mx-auto px-6 py-20 text-muted-foreground">Loading the latest…</div>
+        <div className="max-w-7xl mx-auto px-6 py-20 text-muted-foreground">Loading…</div>
       ) : posts.length === 0 ? (
-        <div className="max-w-7xl mx-auto px-6 py-20 text-muted-foreground">No posts yet.</div>
+        <div className="max-w-7xl mx-auto px-6 py-20 text-muted-foreground">
+          No posts {filtered ? `tagged #${tag}` : "yet"}.
+        </div>
       ) : (
         <>
-          {/* FEATURED */}
-          <section className="border-b border-border">
-            <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">
-              <div className="flex items-center gap-4 mb-10">
-                <span className="font-mono text-accent text-sm">01</span>
-                <div className="flex-1 h-px bg-border" />
-                <span className="eyebrow !text-muted-foreground">The Latest</span>
-              </div>
-              <PostCard post={posts[0]} featured />
-            </div>
-          </section>
-
-          {/* GRID */}
-          {posts.length > 1 && (
-            <section className="max-w-7xl mx-auto px-6 py-16 md:py-20">
-              <div className="flex items-end justify-between mb-12 gap-4 flex-wrap">
-                <div>
-                  <span className="font-mono text-accent text-sm">02</span>
-                  <h2 className="font-display text-4xl md:text-5xl font-bold mt-2">
-                    More <span className="display-italic text-gradient-ember">writing</span>
-                  </h2>
+          {/* FEATURED (only on unfiltered home) */}
+          {!filtered && (
+            <section className="border-b border-border">
+              <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">
+                <div className="flex items-center gap-4 mb-10">
+                  <span className="font-mono text-accent text-sm">01</span>
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="eyebrow !text-muted-foreground">The Latest</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-[0.18em]">
-                  <label className="text-muted-foreground">Sort</label>
-                  <select
-                    value={sort}
-                    onChange={(e) => setSort(e.target.value as typeof sort)}
-                    className="bg-secondary border border-border rounded-full px-4 py-2 text-xs uppercase tracking-[0.18em] font-mono focus:outline-none focus:ring-1 focus:ring-ring"
-                  >
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
-                    <option value="popular">Most read</option>
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-                {posts.slice(1).map((p) => <PostCard key={p.id} post={p} />)}
+                <PostCard post={posts[0]} featured />
               </div>
             </section>
           )}
+
+          {/* GRID */}
+          <section className="max-w-7xl mx-auto px-6 py-16 md:py-20">
+            <div className="flex items-end justify-between mb-12 gap-4 flex-wrap">
+              <div>
+                <span className="font-mono text-accent text-sm">{filtered ? "01" : "02"}</span>
+                <h2 className="font-display text-4xl md:text-5xl font-bold mt-2">
+                  {filtered ? "Tagged" : "More"}{" "}
+                  <span className="display-italic text-gradient-ember">writing</span>
+                </h2>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-[0.18em]">
+                <label className="text-muted-foreground">Sort</label>
+                <select
+                  value={sort}
+                  onChange={(e) => {
+                    const v = e.target.value as "newest" | "oldest" | "popular";
+                    navigate({ search: (prev: { tag?: string; sort: string }) => ({ ...prev, sort: v }) });
+                  }}
+                  className="bg-secondary border border-border rounded-full px-4 py-2 text-xs uppercase tracking-[0.18em] font-mono focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                  <option value="newest">Newest</option>
+                  <option value="oldest">Oldest</option>
+                  <option value="popular">Most read</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+              {(filtered ? posts : posts.slice(1)).map((p) => <PostCard key={p.id} post={p} />)}
+            </div>
+          </section>
         </>
       )}
     </div>
