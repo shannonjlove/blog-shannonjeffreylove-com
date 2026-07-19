@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "sdk_version": "0.23.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://taikwcbavizehmioysgq.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "inkwell-blog",
+      "version": "0.1.0",
+      "title": "Inkwell Blog"
+    },
+    "tools": [
+      {
+        "name": "list_posts",
+        "title": "List blog posts",
+        "description": "List published blog posts on Inkwell, optionally filtered by category slug or tag, sorted newest/oldest/popular.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "category": {
+              "description": "Category slug",
+              "type": "string"
+            },
+            "tag": {
+              "description": "Tag keyword",
+              "type": "string"
+            },
+            "search": {
+              "description": "Case-insensitive search over title and excerpt",
+              "type": "string"
+            },
+            "sort": {
+              "type": "string",
+              "enum": [
+                "newest",
+                "oldest",
+                "popular"
+              ]
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_post",
+        "title": "Get blog post",
+        "description": "Fetch a single published blog post by slug, including full markdown content and tags.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "slug": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "slug"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_categories",
+        "title": "List categories",
+        "description": "List all blog categories with their slugs.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_comment",
+        "title": "Comment on a post",
+        "description": "Post a comment on a published blog post as the signed-in user.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "post_slug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4000
+            }
+          },
+          "required": [
+            "post_slug",
+            "body"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
