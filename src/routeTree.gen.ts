@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as ResumeRouteImport } from './routes/resume'
+import { Route as McpDocsRouteImport } from './routes/mcp-docs'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -33,6 +34,11 @@ const SearchRoute = SearchRouteImport.update({
 const ResumeRoute = ResumeRouteImport.update({
   id: '/resume',
   path: '/resume',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpDocsRoute = McpDocsRouteImport.update({
+  id: '/mcp-docs',
+  path: '/mcp-docs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
+  '/mcp-docs': typeof McpDocsRoute
   '/resume': typeof ResumeRoute
   '/search': typeof SearchRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
+  '/mcp-docs': typeof McpDocsRoute
   '/resume': typeof ResumeRoute
   '/search': typeof SearchRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
+  '/mcp-docs': typeof McpDocsRoute
   '/resume': typeof ResumeRoute
   '/search': typeof SearchRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -164,6 +173,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/mcp'
+    | '/mcp-docs'
     | '/resume'
     | '/search'
     | '/.mcp/list-tools'
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/mcp'
+    | '/mcp-docs'
     | '/resume'
     | '/search'
     | '/.mcp/list-tools'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/mcp'
+    | '/mcp-docs'
     | '/resume'
     | '/search'
     | '/.mcp/list-tools'
@@ -216,6 +228,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   McpRoute: typeof McpRoute
+  McpDocsRoute: typeof McpDocsRoute
   ResumeRoute: typeof ResumeRoute
   SearchRoute: typeof SearchRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
@@ -242,6 +255,13 @@ declare module '@tanstack/react-router' {
       path: '/resume'
       fullPath: '/resume'
       preLoaderRoute: typeof ResumeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp-docs': {
+      id: '/mcp-docs'
+      path: '/mcp-docs'
+      fullPath: '/mcp-docs'
+      preLoaderRoute: typeof McpDocsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -344,6 +364,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   McpRoute: McpRoute,
+  McpDocsRoute: McpDocsRoute,
   ResumeRoute: ResumeRoute,
   SearchRoute: SearchRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
