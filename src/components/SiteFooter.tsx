@@ -17,6 +17,12 @@ export function SiteFooter() {
             <li><a href="https://shannonj.love" className="hover:text-accent">Portfolio ↗</a></li>
           </ul>
         </div>
+        <div>
+          <p className="eyebrow mb-3">Developers</p>
+          <ul className="space-y-2 text-muted-foreground">
+            <li><a href="/mcp-docs" className="hover:text-accent">MCP Docs</a></li>
+          </ul>
+        </div>
         <div className="md:text-right">
           <p className="eyebrow mb-3">Colophon</p>
           <p className="text-muted-foreground">Set in Fraunces &amp; Inter.<br />© {new Date().getFullYear()} SJL</p>
