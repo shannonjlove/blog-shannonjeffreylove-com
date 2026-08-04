@@ -1,7 +1,7 @@
 export function SiteFooter() {
   return (
     <footer className="border-t border-border mt-24">
-      <div className="max-w-7xl mx-auto px-6 py-12 grid gap-8 md:grid-cols-[2fr_1fr_1fr] text-sm">
+      <div className="max-w-7xl mx-auto px-6 py-12 grid gap-8 md:grid-cols-[2fr_1fr_1fr_1fr] text-sm">
         <div>
           <p className="font-display text-2xl font-bold">
             Inkwell<span className="display-italic text-gradient-ember">.</span>
